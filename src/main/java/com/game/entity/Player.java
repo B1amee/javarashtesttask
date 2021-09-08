@@ -13,6 +13,7 @@ import java.util.Date;
 public class Player {
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name")
@@ -35,6 +36,18 @@ public class Player {
     private Date birthday;
     @Column(name = "banned")
     private Boolean banned;
+
+//    public Player(String name, String title, Race race, Profession profession, Integer experience, Integer level, Integer untilNextLevel, Date birthday, Boolean banned) {
+//        this.name = name;
+//        this.title = title;
+//        this.race = race;
+//        this.profession = profession;
+//        this.experience = experience;
+//        this.level = level;
+//        this.untilNextLevel = untilNextLevel;
+//        this.birthday = birthday;
+//        this.banned = banned;
+//    }
 
     @Override
     public String toString() {

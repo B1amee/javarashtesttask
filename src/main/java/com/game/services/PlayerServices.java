@@ -16,25 +16,23 @@ import java.util.List;
 @Service
 public class PlayerServices {
 
+    private List<Player> playerList;
+
     @Autowired
     private PlayerRepository playerRepository;
 
 
     @Transactional
-    public List<Player> findAll() {
-        List<Player> playerList = new ArrayList<>(playerRepository.findAll());
-        return playerList;
+    public void findAll() {
+        playerList = new ArrayList<>(playerRepository.findAll());
     }
 
-    public Integer getCount() {
-        return Long.valueOf(playerRepository.count()).intValue();
-    }
 
-    public List<Player> getFilterList(List<Player> playerList, String name, String title, Race race, Profession profession,
+    public List<Player> getFilterList(String name, String title, Race race, Profession profession,
                                       Long after, Long before, Boolean banned, Integer minExperience, Integer maxExperience, Integer minLevel,
                                       Integer maxLevel) {
         List<Player> resultList = new ArrayList<>();
-        for (Player player : playerList) {
+        for (Player player : getPlayerList()) {
             boolean flag = true;
             if (name != null && !player.getName().contains(name)) flag = false;
             if (flag && title != null && !player.getTitle().contains(title)) flag = false;
@@ -51,6 +49,34 @@ public class PlayerServices {
                 resultList.add(player);
             }
         }
+        playerList = resultList;
         return resultList;
+    }
+
+    public List<Player> getPlayerList() {
+        findAll();
+        return playerList;
+    }
+
+    public boolean cratePlayer(Player player) {
+        boolean flag = true;
+        if (player == null) flag = false;
+        if (flag && player.getName() == null) flag = false;
+        if (flag &&  (player.getName().length() > 12 || player.getName().equals(""))) flag = false;
+        if (flag && (player.getTitle() == null || player.getTitle().length() > 30)) flag = false;
+        if (flag && player.getRace() == null) flag = false;
+        if (flag && player.getProfession() == null) flag = false;
+        if (flag && player.getBirthday() == null && player.getBirthday().getTime() < 0) flag = false;
+        if (flag && player.getExperience() == null) flag = false;
+        if (flag && (!(player.getExperience() > 0L) || !(player.getExperience() < 10000000L))) flag = false;
+        if (flag) {
+            Integer level = Math.toIntExact(Math.round((Math.sqrt(2500 + 200.0 * player.getExperience()) - 50) / 100));
+            Integer untilNextLevel = 50 * (level + 1) * (level + 2) - player.getExperience();
+            player.setLevel(level);
+            player.setUntilNextLevel(untilNextLevel);
+            System.out.println(player);
+            playerRepository.saveAndFlush(player);
+        }
+        return flag;
     }
 }
