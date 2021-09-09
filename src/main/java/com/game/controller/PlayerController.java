@@ -76,6 +76,7 @@ public class PlayerController {
         }
         return responseEntity;
     }
+
     @RequestMapping(value = "rest/players/count")
     public ResponseEntity<Integer> getCount(
             @RequestParam(defaultValue = "ID", value = "order", required = false) String order,
@@ -118,7 +119,7 @@ public class PlayerController {
 
     @RequestMapping(value = "rest/players/{id}")
     @ResponseBody
-    public ResponseEntity<Player> getPlayerById (@PathVariable(value = "id") Long id) {
+    public ResponseEntity<Player> getPlayerById(@PathVariable(value = "id") Long id) {
         ResponseEntity<Player> responseEntity = null;
         Player player = null;
         try {
@@ -127,6 +128,46 @@ public class PlayerController {
                 responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             } else {
                 responseEntity = new ResponseEntity<>(player, HttpStatus.OK);
+            }
+        } catch (NoSuchElementException e) {
+            responseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return responseEntity;
+    }
+
+    @RequestMapping(value = "rest/players/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Player> updatePlayer
+            (@PathVariable(value = "id") Long id,
+             @RequestBody Player player) {
+        ResponseEntity<Player> responseEntity = null;
+        if (player != null) {
+            Player resultPlayer = null;
+            try {
+                resultPlayer = playerServices.updatePlayer(player, id);
+                if (resultPlayer != null) {
+                    responseEntity = new ResponseEntity<>(resultPlayer, HttpStatus.OK);
+                } else {
+                    responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+            } catch (NoSuchElementException e) {
+                responseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }
+        return responseEntity;
+    }
+
+    @RequestMapping(value = "rest/players/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Player> deletePlayerById(@PathVariable(value = "id") Long id) {
+        ResponseEntity<Player> responseEntity = null;
+        boolean flag = false;
+        try {
+            flag = playerServices.deletePlayer(id);
+            if (flag) {
+                responseEntity = new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (NoSuchElementException e) {
             responseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);

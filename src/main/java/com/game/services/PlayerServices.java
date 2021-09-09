@@ -71,11 +71,10 @@ public class PlayerServices {
         if (flag && player.getExperience() == null) flag = false;
         if (flag && (!(player.getExperience() > 0L) || !(player.getExperience() < 10000000L))) flag = false;
         if (flag) {
-            Integer level = Math.toIntExact(Math.round((Math.sqrt(2500 + 200.0 * player.getExperience()) - 50) / 100));
+            Integer level = (int) ((Math.sqrt(2500 + 200.0 * player.getExperience()) - 50) / 100);
             Integer untilNextLevel = 50 * (level + 1) * (level + 2) - player.getExperience();
             player.setLevel(level);
             player.setUntilNextLevel(untilNextLevel);
-            System.out.println(player);
             playerRepository.saveAndFlush(player);
         }
         return flag;
@@ -87,5 +86,63 @@ public class PlayerServices {
             result = playerRepository.findById(id).get();
         }
         return result;
+    }
+
+    public Player updatePlayer(Player player, Long id) throws NoSuchElementException{
+        Player resultPlayer = getById(id);
+        boolean flag = true;
+        if (resultPlayer == null) flag = false;
+        if (flag && player.getName() != null) {
+            if (player.getName().length() > 12 || player.getName().equals("")) {
+                flag = false;
+            } else {
+                resultPlayer.setName(player.getName());
+            }
+        }
+        if (flag && player.getTitle() != null) {
+            if (player.getTitle().length() > 30) {
+                flag = false;
+            } else {
+                resultPlayer.setTitle(player.getTitle());
+            }
+        }
+        if (flag && player.getRace() != null) resultPlayer.setRace(player.getRace());
+        if (flag && player.getProfession() != null) resultPlayer.setProfession(player.getProfession());
+        if (flag && player.getBirthday() != null) {
+            if (player.getBirthday().getTime() < 0) {
+                flag = false;
+            } else {
+                resultPlayer.setBirthday(player.getBirthday());
+            }
+        }
+        if (flag && player.getBanned() != null) resultPlayer.setBanned(player.getBanned());
+        if (flag && player.getExperience() != null) {
+            if (!(player.getExperience() > 0L) || !(player.getExperience() < 10000000L)) {
+                flag = false;
+            } else {
+                resultPlayer.setExperience(player.getExperience());
+                Integer level = (int) ((Math.sqrt(2500 + 200.0 * player.getExperience()) - 50) / 100);
+                Integer untilNextLevel = 50 * (level + 1) * (level + 2) - player.getExperience();
+                resultPlayer.setLevel(level);
+                resultPlayer.setUntilNextLevel(untilNextLevel);
+            }
+        }
+        if (flag) {
+            playerRepository.save(resultPlayer);
+        } else {
+            resultPlayer = null;
+        }
+        return resultPlayer;
+    }
+
+    public boolean deletePlayer (Long id) throws NoSuchElementException{
+        Player player = getById(id);
+        boolean flag = true;
+        if (player == null) {
+            flag = false;
+        } else {
+            playerRepository.deleteById(id);
+        }
+        return flag;
     }
 }
