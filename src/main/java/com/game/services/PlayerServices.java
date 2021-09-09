@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class PlayerServices {
@@ -78,5 +79,13 @@ public class PlayerServices {
             playerRepository.saveAndFlush(player);
         }
         return flag;
+    }
+
+    public Player getById(Long id) throws NoSuchElementException{
+        Player result = null;
+        if (id != null && !(id < 1)) {
+            result = playerRepository.findById(id).get();
+        }
+        return result;
     }
 }

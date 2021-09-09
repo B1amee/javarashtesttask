@@ -14,10 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @RequestMapping
@@ -115,6 +112,24 @@ public class PlayerController {
             responseEntity = new ResponseEntity<>(player, HttpStatus.OK);
         } else {
             responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return responseEntity;
+    }
+
+    @RequestMapping(value = "rest/players/{id}")
+    @ResponseBody
+    public ResponseEntity<Player> getPlayerById (@PathVariable(value = "id") Long id) {
+        ResponseEntity<Player> responseEntity = null;
+        Player player = null;
+        try {
+            player = playerServices.getById(id);
+            if (player == null) {
+                responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            } else {
+                responseEntity = new ResponseEntity<>(player, HttpStatus.OK);
+            }
+        } catch (NoSuchElementException e) {
+            responseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return responseEntity;
     }
